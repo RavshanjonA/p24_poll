@@ -1,0 +1,1 @@
+## poll app dagi modellar uchun crud -> create read update deleteni Serializer class orqali bajarish
