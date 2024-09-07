@@ -1,11 +1,12 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
+
+from account.models import Account
 
 
 class Poll(models.Model):
     question = models.TextField()
-    author = models.ForeignKey(User, CASCADE, "polls")
+    author = models.ForeignKey(Account, CASCADE, "polls")
     published = models.DateTimeField(auto_now=True)
 
 
@@ -17,5 +18,5 @@ class Choice(models.Model):
 class Vote(models.Model):
     poll = models.ForeignKey(Poll, CASCADE, "votes")
     choice = models.ForeignKey(Choice, CASCADE, "votes")
-    voted_by = models.ForeignKey(User, CASCADE, "votes")
+    voted_by = models.ForeignKey(Account, CASCADE, "votes")
     voted_at = models.DateTimeField(auto_now=True)

@@ -1,11 +1,12 @@
-from django.contrib.auth.models import User
+
 from django.shortcuts import render, get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from poll.models import Poll
-from poll.serializers import PollSerializer, PollPatchSerializer, RegisterSerializer
+from poll.serializers import PollSerializer, PollPatchSerializer
 
 """
 CRUD
@@ -23,6 +24,10 @@ class PollsView(APIView):
         serializer = PollSerializer(polls, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        request_body=PollSerializer,
+        operation_description="This endpoint for creating Poll Object"
+    )
     def post(self, request):
         serializer = PollSerializer(data=request.data)
         if serializer.is_valid():
@@ -63,18 +68,3 @@ class PollView(APIView):
         poll = get_object_or_404(Poll, pk=pk)
         poll.delete()
         return Response(data={"message": "Object successfully deleted"}, status=status.HTTP_202_ACCEPTED)
-
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            user = User.objects.create(
-                username=data.get("username"),
-                email=data.get("email", ""),
-            )
-            user.set_password(data.get("password1"))
-            user.save()
-            return Response({"message": "user created"}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors)
