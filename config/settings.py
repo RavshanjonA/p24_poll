@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
 import os
 
 from dotenv import load_dotenv
@@ -34,7 +35,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL="account.Account"
+AUTH_USER_MODEL = "account.Account"
 
 # Application definition
 
@@ -48,7 +49,8 @@ INSTALLED_APPS = [
     "poll",
     "account",
     "rest_framework",
-    'drf_yasg',
+    "rest_framework.authtoken",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -127,7 +129,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+SWAGGER_SETTINGS = {"DEFAULT_AUTO_SCHEMA_CLASS": "config.swagger.CustomAutoSchema"}
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
