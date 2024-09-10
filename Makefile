@@ -1,4 +1,4 @@
-migrate:
+mig:
 	python3 manage.py makemigrations
 	python3 manage.py migrate
 user:
@@ -7,6 +7,6 @@ user:
 test:
 	python3 manage.py test
 
-sort:
+check:
 	black .
 	isort .

@@ -16,13 +16,18 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+from rest_framework.authtoken import views
 
 from config.swagger import swagger_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/poll/", include("poll.urls.v1")),
-    path("api/v1/account/", include("account.urls.v1")),
+    path("api/v1/poll/", include("poll.urls.v1", "poll")),
+    path("api/v1/account/", include("account.urls.v1", "account")),
+    path(
+        "api-token-auth/",
+        views.obtain_auth_token,
+    ),
 ]
-urlpatterns+=swagger_urlpatterns
+urlpatterns += swagger_urlpatterns
