@@ -17,7 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.authtoken import views
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
 from config.swagger import swagger_urlpatterns
 
@@ -25,9 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/poll/", include("poll.urls.v1", "poll")),
     path("api/v1/account/", include("account.urls.v1", "account")),
-    path(
-        "api-token-auth/",
-        views.obtain_auth_token,
-    ),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 urlpatterns += swagger_urlpatterns

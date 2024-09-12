@@ -6,12 +6,14 @@ from rest_framework import status
 from rest_framework.authentication import (BasicAuthentication,
                                            TokenAuthentication)
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from poll.models import Choice, Poll, Vote
+from poll.permissions import IsAdminOrReadonlyAuthentication
 from poll.serializers import (ChoiceSerializer, PollPatchSerializer,
                               PollSerializer, VoteSerializer)
 
@@ -83,8 +85,8 @@ class PollViewSet(ModelViewSet):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     my_tags = ("poll",)
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = (TokenAuthentication,)
+
+    # lookup_url_kwarg = "slug"
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -94,8 +96,7 @@ class PollViewSet(ModelViewSet):
 class ChoiceViewSet(ModelViewSet):
     queryset = Choice.objects.all()
     serializer_class = ChoiceSerializer
-    permission_classes = (IsAuthenticated,)
-    authentication_classes = (TokenAuthentication,)
+    permission_classes = (AllowAny,)
     my_tags = ("choice",)
 
     @action(detail=True, methods=["post"])
@@ -108,3 +109,15 @@ class ChoiceViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
+
+
+class VoteViewSet(ModelViewSet):
+    queryset = Vote.objects.all()
+    serializer_class = VoteSerializer
+    permission_classes = (IsAdminOrReadonlyAuthentication,)
+    my_tags = ("vote",)
+    """
+    agar user superuser bo'lsa vote create qilishi mumkin va o'qishi ham mumkin
+    agar user oddiy user bo'lsa vote faqat o'qishi  mumkin.
+    IsAdminOrReadonlyAuthentication
+    """

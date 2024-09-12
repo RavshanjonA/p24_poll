@@ -29,9 +29,9 @@ class ChoiceSerializer(ModelSerializer):
 class VoteSerializer(ModelSerializer):
     class Meta:
         model = Vote
-        fields = ("id", "choice", "voted_by", "voted_at")
-        extra_kwargs = {
-            "choice": {"read_only": True},
-            "voted_at": {"read_only": True},
-            "voted_by": {"read_only": True},
-        }
+        fields = ("id", "choice", "voted_by", "voted_at", "poll")
+        # extra_kwargs = {
+        #     "choice": {"read_only": True},
+        #     "voted_at": {"read_only": True},
+        #     "voted_by": {"read_only": True},
+        # }
