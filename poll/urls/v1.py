@@ -6,7 +6,7 @@ from poll.views import ChoiceViewSet, PollViewSet, VoteViewSet
 router = DefaultRouter()
 router.register("choice", ChoiceViewSet)
 router.register("vote", VoteViewSet)
-router.register("", PollViewSet)
+router.register("", PollViewSet, basename="poll")
 
 app_name = "poll"
 urlpatterns = [

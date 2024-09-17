@@ -1,3 +1,3 @@
-## 1. djoser ni ulash
-## 2. ShortedPagination p orqali page raqamini qabul qilsin s bn page sizeni qabul qilsin
-## 3. Poll list da search yozish poll title  va author_username , author_phone orqali search qila olsin
+## 1. file/media uploading : choice -> remove answer add auido allow only music types
+## 2. throttling: poll-detil, vote_detial -> owner min/20 non-owner min/5
+## 3. test: poll, choice, vote uchun crudga test yozish.

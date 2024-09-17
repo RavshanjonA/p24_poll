@@ -14,6 +14,7 @@ import os
 from datetime import timedelta
 
 from dotenv import load_dotenv
+from tutorial.settings import BASE_DIR
 
 load_dotenv()
 
@@ -84,6 +85,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'config.throttle.RoleBasedThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '2/min',
+        'user': '3/min'
+    },
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
@@ -141,8 +150,12 @@ SWAGGER_SETTINGS = {"DEFAULT_AUTO_SCHEMA_CLASS": "config.swagger.CustomAutoSchem
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / 'media'
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 # Default primary key field type

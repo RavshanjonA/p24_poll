@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import ImageField
 from rest_framework.serializers import ModelSerializer
 
 from account.models import Account, AccountProfile, Interest
@@ -26,6 +27,8 @@ class AccountSerializer(ModelSerializer):
         model = Account
         fields = (
             "id",
+            "music",
+            "rating",
             "username",
             "email",
             "password",
@@ -77,6 +80,7 @@ class AccountProfileSerializer(ModelSerializer):
 
 class AccountDetailSerializer(ModelSerializer):
     profile = AccountProfileSerializer(allow_null=True, required=False)
+    avatar = ImageField()
 
     class Meta:
         model = Account
@@ -88,19 +92,22 @@ class AccountDetailSerializer(ModelSerializer):
             "last_name",
             "phone",
             "profile",
+            "avatar",
+            "music",
+            "rating",
         )
         extra_kwargs = {
             "email": {"required": False, "allow_null": True},
             "first_name": {"required": False, "allow_null": True},
             "last_name": {"required": False, "allow_null": True},
-            "profile": {"required": False, "allow_null": True},
+            "profile": {"required": False, "allow_null": True, "allow_empty": True},
         }
 
     # def update(self, instance, validated_data):
     #     return super().update(instance, validated_data)
 
     def update(self, instance, validated_data):
-        profile = validated_data.pop("profile")
+        profile = validated_data.pop("profile", None)
         super().update(instance, validated_data)
         account_profile: AccountProfile = instance.profile
         if profile:

@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
@@ -26,6 +27,8 @@ class AccountView(ModelViewSet):
     filter_backends = (CustomSearchFilter,)
     # filter_backends = (SearchFilter,)
     search_fields = ("username", "email", "phone")
+    parser_classes = (JSONParser, MultiPartParser, FormParser)
+
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -40,45 +43,43 @@ class AccountView(ModelViewSet):
         serializer = InterestSerializer(account.profile.interests.all(), many=True)
         return Response(data=serializer.data)
 
+        # api/v1/account/top-contacts/
 
-# api/v1/account/top-contacts/
-@action(methods=["POST"], detail=False, url_path="top-accounts")
-def top_accounts(self, *args, **kwargs):
-    queryset = self.get_queryset()
-    # queryset = queryset.filter(profile__interests__isnull=False).distinct()
-    queryset = (
-        queryset.annotate(interest_count=Count("profile__interests"))
-        .filter(interest_count__gt=0)
-        .order_by("-interest_count")
-    )
-    serializer = self.serializer_class(queryset, many=True)
-    return Response(data=serializer.data)
+    @action(methods=["POST"], detail=False, url_path="top-accounts")
+    def top_accounts(self, *args, **kwargs):
+        queryset = self.get_queryset()
+        # queryset = queryset.filter(profile__interests__isnull=False).distinct()
+        queryset = (
+            queryset.annotate(interest_count=Count("profile__interests"))
+            .filter(interest_count__gt=0)
+            .order_by("-interest_count")
+        )
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(data=serializer.data)
 
+        # # create list -> AccountSerializer
+        # # detail, put, patch, delete -> AccountDetailSerializer
 
-# # create list -> AccountSerializer
-# # detail, put, patch, delete -> AccountDetailSerializer
-def retrieve(self, request, pk=None):
-    account = get_object_or_404(self.queryset, pk=pk)
-    serializer = self.serializer_class2(account)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    def retrieve(self, request, pk=None):
+        account = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.serializer_class2(account)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def update(self, request, pk=None):
+        account = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.serializer_class2(data=request.data, instance=account)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
-def update(self, request, pk=None):
-    account = get_object_or_404(self.queryset, pk=pk)
-    serializer = self.serializer_class2(data=request.data, instance=account)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
-
-def partial_update(self, request, pk=None):
-    account = get_object_or_404(self.queryset, pk=pk)
-    serializer = self.serializer_class2(
-        data=request.data, instance=account, partial=True
-    )
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    def partial_update(self, request, pk=None):
+        account = get_object_or_404(self.queryset, pk=pk)
+        serializer = self.serializer_class2(
+            data=request.data, instance=account, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 class InterestView(ViewSet):

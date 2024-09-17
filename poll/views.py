@@ -82,7 +82,7 @@ Delete
 #         return Response(data={"message": "Object successfully deleted"}, status=status.HTTP_202_ACCEPTED)
 #
 class PollViewSet(ModelViewSet):
-    queryset = Poll.objects.all()
+    queryset = Poll.objects.all().order_by("id")
     serializer_class = PollSerializer
     my_tags = ("poll",)
 

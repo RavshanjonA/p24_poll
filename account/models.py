@@ -1,15 +1,21 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 from django.db.models import (CASCADE, CharField, ManyToManyField, Model,
-                              OneToOneField, SlugField)
+                              OneToOneField, SlugField, ImageField, FileField, IntegerField, TextChoices)
 from django.utils.text import slugify
+
+class RoleChoice(TextChoices):
+    ADMIN = "admin", "Admin"
+    USER = "user", "User"
 
 
 class Account(AbstractUser):
-    phone = CharField(max_length=128, unique=True)
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
+    phone = CharField(max_length=128, )
+    avatar = ImageField(upload_to="avatars/", default="avatar.jpeg")
+    music = FileField(upload_to="user-files/", null=True, blank=True,
+                      validators=[FileExtensionValidator(allowed_extensions=["mp3", "ogg"])])
+    rating = IntegerField(validators=(MaxValueValidator(5), MinValueValidator(1)), default=-1)
+    role = CharField(max_length=5, choices=RoleChoice.choices, default=RoleChoice.USER)
 
 class AccountProfile(Model):
     account = OneToOneField(Account, CASCADE, related_name="profile")
@@ -17,6 +23,7 @@ class AccountProfile(Model):
     passport_number = CharField(max_length=6, null=True, blank=True)
     passport_letter = CharField(max_length=2, null=True, blank=True)
     interests = ManyToManyField("Interest", "accounts")
+
     #
     # class Meta:
     #     unique_together = ('passport_number', 'passport_letter')
@@ -27,12 +34,12 @@ class Interest(Model):
     slug = SlugField(unique=True, blank=True)
 
     def save(
-        self,
-        *args,
-        force_insert=False,
-        force_update=False,
-        using=None,
-        update_fields=None
+            self,
+            *args,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
     ):
         if not self.slug:
             self.slug = slugify(self.name)
