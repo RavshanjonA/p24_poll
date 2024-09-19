@@ -1,3 +1,4 @@
-## 1. file/media uploading : choice -> remove answer add auido allow only music types
-## 2. throttling: poll-detil, vote_detial -> owner min/20 non-owner min/5
-## 3. test: poll, choice, vote uchun crudga test yozish.
+## 1. api/v1/account/permission/ -> permission lar listini qaytarsin
+## 2. api/v1/account/group/ -> grouplar listini qaytarsin
+## 3. api/v1/account/group/1/permission -> 1-group ga permissionlar qo'sha olsin
+## 4. api/v1/account/user/2/permission > 2-user ga permissionlar qo'sha olsin

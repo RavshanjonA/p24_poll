@@ -1,21 +1,13 @@
-from trace import Trace
-
-from django.shortcuts import get_object_or_404, render
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
-from rest_framework.authentication import (BasicAuthentication,
-                                           TokenAuthentication)
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from poll.models import Choice, Poll, Vote
 from poll.permissions import IsAdminOrReadonlyAuthentication
-from poll.serializers import (ChoiceSerializer, PollPatchSerializer,
+from poll.serializers import (ChoiceSerializer,
                               PollSerializer, VoteSerializer)
+from poll.throttles import CustomOwnerPollThrottle
 
 """
 CRUD
@@ -80,17 +72,20 @@ Delete
 #         poll = get_object_or_404(Poll, pk=pk)
 #         poll.delete()
 #         return Response(data={"message": "Object successfully deleted"}, status=status.HTTP_202_ACCEPTED)
-#
+
 class PollViewSet(ModelViewSet):
     queryset = Poll.objects.all().order_by("id")
     serializer_class = PollSerializer
     my_tags = ("poll",)
 
-    # lookup_url_kwarg = "slug"
+    def get_throttles(self):
+        if self.action not in {'create', 'list'}:
+            return [CustomOwnerPollThrottle()]
+        return []
 
     def perform_create(self, serializer):
+        # Save the poll with the current user as the author
         serializer.save(author=self.request.user)
-        super().perform_create(serializer)
 
 
 class ChoiceViewSet(ModelViewSet):

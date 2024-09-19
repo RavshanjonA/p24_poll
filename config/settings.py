@@ -85,14 +85,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'config.throttle.RoleBasedThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '2/min',
-        'user': '3/min'
-    },
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    #
+    # ],
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '200/min',
+    #     'user': '400/min'
+    # },
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],

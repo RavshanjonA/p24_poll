@@ -23,7 +23,7 @@ class PollPatchSerializer(serializers.Serializer):
 class ChoiceSerializer(ModelSerializer):
     class Meta:
         model = Choice
-        fields = ("id", "answer", "poll")
+        fields = ("id", "audio", "poll")
 
 
 class VoteSerializer(ModelSerializer):

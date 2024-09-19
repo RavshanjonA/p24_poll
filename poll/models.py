@@ -1,5 +1,6 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
-from django.db.models import CASCADE, UniqueConstraint
+from django.db.models import CASCADE, UniqueConstraint, FileField
 
 from account.models import Account
 
@@ -11,7 +12,7 @@ class Poll(models.Model):
 
 
 class Choice(models.Model):
-    answer = models.TextField()
+    audio = FileField(upload_to="audios/", null=True, blank=True, validators=[FileExtensionValidator(allowed_extensions=["mp3", "ogg"])])
     poll = models.ForeignKey(Poll, CASCADE, "choices")
 
 
