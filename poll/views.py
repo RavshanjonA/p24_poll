@@ -3,6 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from config.permissions import ActionBasedPermission, ExchangePermission
 from poll.models import Choice, Poll, Vote
 from poll.permissions import IsAdminOrReadonlyAuthentication
 from poll.serializers import (ChoiceSerializer,
@@ -77,6 +78,7 @@ class PollViewSet(ModelViewSet):
     queryset = Poll.objects.all().order_by("id")
     serializer_class = PollSerializer
     my_tags = ("poll",)
+    permission_classes = (ActionBasedPermission,)
 
     def get_throttles(self):
         if self.action not in {'create', 'list'}:
@@ -91,7 +93,7 @@ class PollViewSet(ModelViewSet):
 class ChoiceViewSet(ModelViewSet):
     queryset = Choice.objects.all()
     serializer_class = ChoiceSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (ExchangePermission,)
     my_tags = ("choice",)
 
     @action(detail=True, methods=["post"])
@@ -109,7 +111,7 @@ class ChoiceViewSet(ModelViewSet):
 class VoteViewSet(ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    permission_classes = (IsAdminOrReadonlyAuthentication,)
+    permission_classes = (IsAdminOrReadonlyAuthentication, ActionBasedPermission)
     my_tags = ("vote",)
     """
     agar user superuser bo'lsa vote create qilishi mumkin va o'qishi ham mumkin

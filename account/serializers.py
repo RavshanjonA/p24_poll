@@ -1,5 +1,6 @@
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ImageField
 from rest_framework.serializers import ModelSerializer
 
@@ -95,6 +96,7 @@ class AccountDetailSerializer(ModelSerializer):
             "avatar",
             "music",
             "rating",
+            "user_permission"
         )
         extra_kwargs = {
             "email": {"required": False, "allow_null": True},
@@ -118,3 +120,29 @@ class AccountDetailSerializer(ModelSerializer):
                 account_profile.interests.set(intrests)
             account_profile.save()
         return instance
+
+
+class GroupSerializer(ModelSerializer):
+    class Meta:
+        model = Group
+        fields = "__all__"
+
+
+class PermissionSerializer(ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = "__all__"
+
+
+class ContentTypeSerializer(ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
+
+class UserPermissionSerializer(ModelSerializer):
+    content_type = ContentTypeSerializer()
+
+    class Meta:
+        model = Permission
+        fields = "__all__"

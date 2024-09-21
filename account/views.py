@@ -1,5 +1,8 @@
+from re import search
 from trace import Trace
 
+from django.contrib.auth.models import Group, Permission
+from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Count
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
@@ -16,7 +19,7 @@ from yaml import serialize
 from account.models import Account, Interest
 from account.search import CustomSearchFilter
 from account.serializers import (AccountDetailSerializer, AccountSerializer,
-                                 InterestSerializer)
+                                 InterestSerializer, GroupSerializer, PermissionSerializer, UserPermissionSerializer)
 
 
 class AccountView(ModelViewSet):
@@ -28,7 +31,6 @@ class AccountView(ModelViewSet):
     # filter_backends = (SearchFilter,)
     search_fields = ("username", "email", "phone")
     parser_classes = (JSONParser, MultiPartParser, FormParser)
-
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -57,8 +59,11 @@ class AccountView(ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(data=serializer.data)
 
-        # # create list -> AccountSerializer
-        # # detail, put, patch, delete -> AccountDetailSerializer
+    @action(methods=["GET"], detail=True, url_path="permissions")
+    def permissions(self, *args, **kwargs):
+        user = self.get_object()
+        serializer = UserPermissionSerializer(user.user_permissions.all(), many=True)
+        return Response(data=serializer.data)
 
     def retrieve(self, request, pk=None):
         account = get_object_or_404(self.queryset, pk=pk)
@@ -82,13 +87,24 @@ class AccountView(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
-class InterestView(ViewSet):
+class InterestView(ModelViewSet):
     queryset = Interest.objects.all()
     serializer_class = InterestSerializer
     my_tags = ("interest",)
 
+    # filter_backends = (SearchFilter,)
+    # search_fields = ("name",)
+
+    def get_queryset(self):
+        queryset = Interest.objects.all()
+        search = self.request.query_params.get("search")
+        if search:
+            queryset = Interest.objects.annotate(similarity=TrigramSimilarity('name', search)).filter(
+                similarity__gte=0.1).order_by('-similarity')
+        return queryset
+
     def list(self, request):
-        serializer = InterestSerializer(self.queryset, many=True)
+        serializer = InterestSerializer(self.get_queryset(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -105,3 +121,22 @@ class InterestView(ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data)
+
+
+class GroupViewSet(ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    my_tags = ("group",)
+
+
+class PermissionViewSet(ModelViewSet):
+    queryset = Permission.objects.all().order_by("id")
+    serializer_class = PermissionSerializer
+    my_tags = ("permission",)
+
+    APP_LABELS = {"account", "poll"}
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(content_type__app_label__in=self.APP_LABELS)
+        return queryset

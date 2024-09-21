@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL("create extension if not exists pg_trgm"),
         migrations.AlterField(
             model_name="account",
             name="phone",

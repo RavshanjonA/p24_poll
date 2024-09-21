@@ -95,7 +95,7 @@ REST_FRAMEWORK = {
     #     'user': '400/min'
     # },
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "config.permissions.ActionBasedPermission",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
